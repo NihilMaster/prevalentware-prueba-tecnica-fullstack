@@ -8,6 +8,7 @@
         "better-auth": "^1.3.26",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "decimal": "^0.0.2",
         "lucide-react": "^0.468.0",
         "next": "^15.1.3",
         "react": "^18.3.1",
@@ -387,6 +388,8 @@
     "data-view-byte-offset": ["data-view-byte-offset@1.0.1", "", { "dependencies": { "call-bound": "^1.0.2", "es-errors": "^1.3.0", "is-data-view": "^1.0.1" } }, "sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ=="],
 
     "debug": ["debug@4.4.1", "", { "dependencies": { "ms": "^2.1.3" } }, "sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ=="],
+
+    "decimal": ["decimal@0.0.2", "", {}, "sha512-puX1+D5GlpXYH0kDejnu8F2jsGLKRePc7eOznNjqMbA2otl7AzvubrvvZVmOvRCHhsqeAPKNcAxHHbevsH/1qg=="],
 
     "deep-is": ["deep-is@0.1.4", "", {}, "sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ=="],
 
