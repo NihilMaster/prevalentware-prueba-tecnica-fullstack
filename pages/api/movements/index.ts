@@ -1,49 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
-import { auth } from '../../../lib/auth/index';
+import { PrismaClient, MovementType } from '@prisma/client';
+import { validateMovementData } from '../../../lib/validation';
+import { getAuthenticatedUser } from '../../../lib/auth-utils';
 
 const prisma = new PrismaClient();
-
-// Tipos para TypeScript
-interface MovementData {
-  amount: number;
-  description: string;
-  type: 'INCOME' | 'EXPENSE';
-  date?: string;
-}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Obtener sesión de Better Auth
-  // 1. CONSTRUIR EL OBJETO HEADERS
-  const headers = new Headers();
-  
-  // Itera sobre las cabeceras de Next.js y añádelas al objeto Headers.
-  // Esto maneja el problema de los tipos y garantiza que solo se usen strings.
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (typeof value === 'string') {
-      headers.set(key, value);
-    } 
-    // Nota: Por simplicidad y uso común, ignoramos los arrays (cabeceras duplicadas)
-    // que son raros excepto por 'Set-Cookie'
-  }
-
-  // Obtener sesión de Better Auth
-  // 2. USA EL NUEVO OBJETO HEADERS
-  const session = await auth.api.getSession({
-    // ¡CORRECCIÓN APLICADA AQUÍ!
-    headers: headers, 
-  });
-
-  if (!session) {
-    return res.status(401).json({ error: 'No autorizado' });
+  // Verificar autenticación para todos los endpoints
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({ 
+      error: 'No autorizado',
+      message: 'Debes iniciar sesión para acceder a los movimientos'
+    });
   }
 
   if (req.method === 'GET') {
     try {
-      // Obtener parámetros de query para paginación y filtros
+      // Obtener parámetros de query
       const { page = '1', limit = '10', type } = req.query;
       const pageNum = parseInt(page as string);
       const limitNum = parseInt(limit as string);
@@ -51,28 +28,20 @@ export default async function handler(
 
       // Construir where clause
       const where: any = {
-        userId: session.user.id,
+        userId: user.id, // Solo movimientos del usuario autenticado
       };
 
       if (type && (type === 'INCOME' || type === 'EXPENSE')) {
-        where.type = type;
+        where.type = type as MovementType;
       }
 
-      // Obtener movimientos del usuario autenticado
+      // Obtener movimientos del usuario
       const movements = await prisma.movement.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: {
-          date: 'desc',
-        },
-        select: {
-          id: true,
-          amount: true,
-          description: true,
-          type: true,
-          date: true,
-          createdAt: true,
+          createdAt: 'desc',
         },
       });
 
@@ -97,50 +66,34 @@ export default async function handler(
 
   if (req.method === 'POST') {
     try {
-      const data: MovementData = req.body;
-
-      // Validaciones básicas
-      if (!data.amount || !data.description || !data.type) {
+      // Validar datos de entrada
+      const validation = validateMovementData(req.body);
+      
+      if (!validation.success) {
         return res.status(400).json({ 
-          error: 'Faltan campos requeridos: amount, description, type' 
+          error: 'Datos inválidos',
+          details: validation.error
         });
       }
 
-      if (data.amount <= 0) {
-        return res.status(400).json({ 
-          error: 'El monto debe ser mayor a 0' 
-        });
-      }
+      // Los campos ahora son requeridos, así que no pueden ser undefined
+      const { amount, description, type, date } = validation.data!;
 
-      if (!['INCOME', 'EXPENSE'].includes(data.type)) {
-        return res.status(400).json({ 
-          error: 'Tipo de movimiento inválido. Use INCOME o EXPENSE' 
-        });
-      }
-
-      // Crear movimiento
+      // Crear movimiento asociado al usuario autenticado
       const movement = await prisma.movement.create({
         data: {
-          amount: data.amount,
-          description: data.description,
-          type: data.type,
-          date: data.date ? new Date(data.date) : new Date(),
-          userId: session.user.id,
-        },
-        select: {
-          id: true,
-          amount: true,
-          description: true,
-          type: true,
-          date: true,
-          createdAt: true,
-        },
+          amount: amount!, // Usar non-null assertion porque sabemos que existe
+          description: description!,
+          type: type as MovementType,
+          date: new Date(date!), // date siempre tendrá valor por el default
+          userId: user.id,
+        }
       });
 
       res.status(201).json(movement);
     } catch (error) {
       console.error('Error creating movement:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
+      res.status(500).json({ error: 'Error creando movimiento' });
     }
     return;
   }

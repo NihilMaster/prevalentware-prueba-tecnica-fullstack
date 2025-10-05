@@ -19,14 +19,16 @@ model User {
   email         String
   emailVerified Boolean
   image         String?
+  role          RoleType   @default(USER)
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
-  movements  Movement[]
+  movements     Movement[]
 
   @@unique([email])
   @@map("user")
+
 }
 
 model Session {
@@ -91,4 +93,9 @@ model Movement {
 enum MovementType {
   INCOME
   EXPENSE
+}
+
+enum RoleType {
+  USER
+  ADMIN
 }
