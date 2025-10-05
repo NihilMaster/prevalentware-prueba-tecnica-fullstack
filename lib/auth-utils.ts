@@ -112,3 +112,74 @@ export async function isAdmin(req: any): Promise<boolean> {
   const user = await getAuthenticatedUser(req);
   return user?.role === 'ADMIN';
 }
+
+// Función específica para verificar permisos de administrador
+export async function validateAdminPermissions(req: any): Promise<{
+  hasPermission: boolean;
+  user?: AuthenticatedUser;
+  error?: string;
+}> {
+  try {
+    const user = await getAuthenticatedUser(req);
+    
+    if (!user) {
+      return { 
+        hasPermission: false, 
+        error: 'No autenticado' 
+      };
+    }
+    
+    if (user.role !== 'ADMIN') {
+      return { 
+        hasPermission: false, 
+        error: 'Se requieren permisos de administrador' 
+      };
+    }
+    
+    return { 
+      hasPermission: true, 
+      user 
+    };
+  } catch (error) {
+    console.error('Error validating admin permissions:', error);
+    return { 
+      hasPermission: false, 
+      error: 'Error validando permisos' 
+    };
+  }
+}
+
+// Middleware para prevenir auto-edición de rol
+export function preventSelfRoleChange(targetUserId: string, currentUser: AuthenticatedUser, newRole?: string) {
+  if (targetUserId === currentUser.id && newRole && newRole !== currentUser.role) {
+    return {
+      allowed: false,
+      error: 'No puedes cambiar tu propio rol'
+    };
+  }
+  return { allowed: true };
+}
+
+// Función para verificar si un usuario puede ser editado
+export async function canEditUser(editor: AuthenticatedUser, targetUserId: string) {
+  // Admins pueden editar cualquier usuario excepto su propio rol
+  if (editor.role === 'ADMIN') {
+    return { 
+      allowed: true,
+      restrictions: targetUserId === editor.id ? ['role'] : [] 
+    };
+  }
+  
+  // Usuarios normales solo pueden auto-editarse (sin cambiar rol)
+  if (editor.role === 'USER' && editor.id === targetUserId) {
+    return { 
+      allowed: true, 
+      restrictions: ['role'] 
+    };
+  }
+  
+  return { 
+    allowed: false, 
+    error: 'No tienes permisos para editar este usuario' 
+  };
+}
