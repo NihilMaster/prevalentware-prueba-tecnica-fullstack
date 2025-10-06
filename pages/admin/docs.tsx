@@ -2,6 +2,7 @@ import { GetStaticProps } from 'next';
 import { createSwaggerSpec } from 'next-swagger-doc';
 import SwaggerUI from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
+import AuthGuard from '@/components/layout/AuthGuard'
 
 interface ApiDocsProps {
   spec: any;
@@ -9,6 +10,7 @@ interface ApiDocsProps {
 
 export default function ApiDocs({ spec }: ApiDocsProps) {
   return (
+    <AuthGuard requiredRole="ADMIN">
     <div>
       <style jsx global>{`
         .swagger-ui .information-container {
@@ -25,6 +27,7 @@ export default function ApiDocs({ spec }: ApiDocsProps) {
       `}</style>
       <SwaggerUI spec={spec} />
     </div>
+    </AuthGuard>
   );
 }
 

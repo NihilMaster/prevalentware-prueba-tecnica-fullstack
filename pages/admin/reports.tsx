@@ -13,6 +13,7 @@ import {
   ChartOptions
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import AuthGuard from '@/components/layout/AuthGuard'
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -214,6 +215,7 @@ export default function AdminReports() {
   };
 
   return (
+    <AuthGuard requiredRole="ADMIN">
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Reportes y Análisis</h1>
       
@@ -538,5 +540,7 @@ export default function AdminReports() {
         📚 Ver Documentación API
       </button>
     </div>
+    </AuthGuard>
+
   );
 }

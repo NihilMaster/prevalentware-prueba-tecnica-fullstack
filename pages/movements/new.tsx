@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import AuthGuard from '@/components/layout/AuthGuard'
 
 export default function NewMovement() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function NewMovement() {
   };
 
   return (
+    <AuthGuard requiredRole="ADMIN">
     <div style={{ padding: '2rem', maxWidth: '500px', margin: '0 auto' }}>
       <h1>Crear Nuevo Movimiento</h1>
       
@@ -116,5 +118,6 @@ export default function NewMovement() {
         </a>
       </div>
     </div>
+    </AuthGuard>
   );
 }

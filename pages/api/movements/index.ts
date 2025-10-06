@@ -3,14 +3,15 @@ import { PrismaClient, MovementType } from '@prisma/client';
 import { validateMovementData } from '../../../lib/validation';
 import { getAuthenticatedUser } from '../../../lib/auth-utils';
 
-const prisma = new PrismaClient();
-
 /**
  * @swagger
- * /api/movements:
+ * /api/movimientos:
  *   get:
- *     summary: Obtener lista de movimientos del usuario autenticado
- *     description: Retorna los movimientos financieros del usuario con paginación y filtros opcionales
+ *     summary: Obtener lista de movimientos
+ *     description: |
+ *       Retorna los movimientos financieros:
+ *       - Administradores: ven todos los movimientos del sistema
+ *       - Usuarios normales: solo ven sus propios movimientos
  *     tags:
  *       - Movimientos
  *     security:
@@ -63,73 +64,9 @@ const prisma = new PrismaClient();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- * 
- *   post:
- *     summary: Crear un nuevo movimiento
- *     description: Crea un nuevo movimiento financiero para el usuario autenticado
- *     tags:
- *       - Movimientos
- *     security:
- *       - cookieAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - amount
- *               - description
- *               - type
- *             properties:
- *               amount:
- *                 type: number
- *                 minimum: 0.01
- *                 maximum: 1000000
- *                 example: 150.75
- *                 description: Monto del movimiento (debe ser mayor a 0)
- *               description:
- *                 type: string
- *                 minLength: 1
- *                 maxLength: 255
- *                 example: "Compra de supermercado"
- *                 description: Descripción del movimiento
- *               type:
- *                 type: string
- *                 enum: [INCOME, EXPENSE]
- *                 example: "EXPENSE"
- *                 description: Tipo de movimiento
- *               date:
- *                 type: string
- *                 format: date-time
- *                 example: "2024-01-15T10:30:00.000Z"
- *                 description: Fecha del movimiento (opcional, por defecto fecha actual)
- *     responses:
- *       201:
- *         description: Movimiento creado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Movement'
- *       400:
- *         description: Datos de entrada inválidos
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: No autorizado - Usuario no autenticado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       500:
- *         description: Error interno del servidor
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
+
+const prisma = new PrismaClient();
 
 export default async function handler(
   req: NextApiRequest,
@@ -152,16 +89,19 @@ export default async function handler(
       const limitNum = parseInt(limit as string);
       const skip = (pageNum - 1) * limitNum;
 
-      // Construir where clause
-      const where: any = {
-        userId: user.id, // Solo movimientos del usuario autenticado
-      };
+      // Construir where clause - MODIFICADO: ya no filtra por usuario
+      const where: any = {};
+      
+      // Solo los administradores pueden ver todos los movimientos
+      if (user.role !== 'ADMIN') {
+        where.userId = user.id; // Usuarios normales solo ven sus movimientos
+      }
 
       if (type && (type === 'INCOME' || type === 'EXPENSE')) {
         where.type = type as MovementType;
       }
 
-      // Obtener movimientos del usuario
+      // Obtener movimientos - MODIFICADO: incluir información del usuario
       const movements = await prisma.movement.findMany({
         where,
         skip,
@@ -169,6 +109,15 @@ export default async function handler(
         orderBy: {
           createdAt: 'desc',
         },
+        include: { // Incluir información del usuario
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            }
+          }
+        }
       });
 
       // Obtener total para paginación
@@ -205,14 +154,14 @@ export default async function handler(
       // Los campos ahora son requeridos, así que no pueden ser undefined
       const { amount, description, type, date } = validation.data!;
 
-      // Crear movimiento asociado al usuario autenticado
+      // Crear movimiento - MODIFICADO: siempre asociado al usuario que lo crea
       const movement = await prisma.movement.create({
         data: {
-          amount: amount!, // Usar non-null assertion porque sabemos que existe
+          amount: amount!,
           description: description!,
           type: type as MovementType,
-          date: new Date(date!), // date siempre tendrá valor por el default
-          userId: user.id,
+          date: new Date(date!),
+          userId: user.id, // Siempre asociado al usuario autenticado
         }
       });
 
