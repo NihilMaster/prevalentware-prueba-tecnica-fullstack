@@ -58,7 +58,17 @@ export default function MovementsList() {
   
   if (error) return (
     <div style={{ padding: '2rem' }}>
-      <div style={{ color: 'red', marginBottom: '1rem' }}>Error: {error}</div>
+      <div style={{ color: 'red', marginBottom: '1rem' }}>{"No se pudieron cargar los usuarios, por favor intente nuevamente o inicie sesión con GitHub"}</div>
+      <p>{error}</p>
+      <button onClick={() => window.location.href = '/'}
+        style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#0070f3',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}>Iniciar sesión</button>
       <button 
         onClick={fetchMovements}
         style={{
@@ -68,10 +78,7 @@ export default function MovementsList() {
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer'
-        }}
-      >
-        Reintentar
-      </button>
+        }}>Reintentar</button>
     </div>
   );
 

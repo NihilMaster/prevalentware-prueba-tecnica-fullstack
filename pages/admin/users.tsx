@@ -102,7 +102,9 @@ export default function AdminUsers() {
   
   if (error) return (
     <div style={{ padding: '2rem' }}>
-      <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>
+      <div style={{ color: 'red', marginBottom: '1rem' }}>{"No se pudieron cargar los usuarios, por favor intente nuevamente o inicie sesión con GitHub"}</div>
+      <p>{error}</p>
+      <button onClick={() => router.push('/')}>Iniciar sesión</button>
       <button onClick={fetchUsers}>Reintentar</button>
     </div>
   );
