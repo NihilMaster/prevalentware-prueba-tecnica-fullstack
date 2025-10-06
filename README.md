@@ -1,117 +1,326 @@
-## Prueba Técnica para Desarrollador Fullstack
+# 🚀 Prevalentware - Sistema de Gestión de Movimientos Financieros
 
-### Introducción
+Un sistema completo para la gestión de movimientos financieros con autenticación, roles y reportes avanzados, construido con Next.js Page Router.
 
-El objetivo de esta prueba técnica es evaluar tus habilidades en el desarrollo de una aplicación fullstack. Deberás implementar un sistema de gestión de ingresos y egresos, la gestión de usuarios y la generación de reportes. El proyecto cuenta con [wireframes](<https://www.figma.com/design/2PINjveveJJ9ZAAwxwNoRK/Wireframes-(Copy)?node-id=0-1&t=6q0Q0id8YnjH9fJt-1>) que pueden servir de guía para el candidato. Sin embargo, el diseño de la interfaz de usuario es libre.
+## 📋 Descripción del Proyecto
 
-### Requisitos del Proyecto
+**Prevalentware** es un sistema web desarrollado con **Next.js** que permite a los usuarios gestionar sus movimientos financieros (ingresos y egresos) con un sistema completo de autenticación, roles administrativos y generación de reportes.
 
-#### Funcionalidades Principales
+### ✨ Características Principales
 
-1. **Roles y Permisos**
-   - **Roles:**
-     - **Usuario:** Solo puede acceder a la gestión de movimientos.
-     - **Administrador:** Puede ver los reportes, editar usuarios y agregar movimientos.
-   - **Nota:** Para efectos de prueba, todos los nuevos usuarios deben ser automáticamente asignados con el rol "ADMIN".
+- **🔐 Autenticación segura** con Better Auth y GitHub OAuth
+- **👥 Sistema de roles** (USER/ADMIN) con permisos granularizados
+- **💰 Gestión de movimientos** financieros (ingresos/egresos)
+- **📊 Reportes avanzados** con gráficos y exportación a CSV
+- **🛡️ Validación robusta** de datos en frontend y backend
+- **📚 API documentada** con Swagger
+- **⚡ Alto rendimiento** con Bun runtime
 
-2. **Home**
-   - Página de inicio con un menú principal que permite la navegación a tres secciones:
-     - Sistema de gestión de ingresos y gastos (disponible para todos los roles)
-     - Gestión de usuarios (solo para administradores)
-     - Reportes (solo para administradores)
+## 🛠️ Stack Tecnológico
 
-3. **Sistema de Gestión de Ingresos y Gastos**
-   - **Vista de Ingresos y Egresos**
-     - Implementar una tabla que muestre los ingresos y egresos registrados con las siguientes columnas:
-       - Concepto
-       - Monto
-       - Fecha
-       - Usuario
-     - Botón "Nuevo" para agregar un nuevo ingreso o egreso (solo para administradores).
-   - **Formulario de Nuevo Ingreso/Egreso**
-     - Formulario con los campos:
-       - Monto
-       - Concepto
-       - Fecha
-     - Botón para guardar el nuevo movimiento.
+### Frontend
+- **Next.js 14** con Page Router
+- **TypeScript** - Tipado estático
+- **Tailwind CSS** - Estilización
+- **React Hook Form** - Manejo de formularios
 
-4. **Gestión de Usuarios** (solo para administradores)
-   - **Vista de Usuarios**
-     - Tabla que muestre la lista de usuarios con las siguientes columnas:
-       - Nombre
-       - Correo
-       - Teléfono
-       - Acciones (editar usuario)
-   - **Formulario de Edición de Usuario**
-     - Formulario con los campos:
-       - Nombre
-       - Rol
-     - Botón para guardar los cambios.
+### Backend
+- **Next.js API Routes** - Endpoints API
+- **Prisma ORM** - Base de datos y migraciones
+- **PostgreSQL** - Base de datos (via Supabase)
+- **Better Auth** - Autenticación y sesiones
+- **Zod** - Validación de esquemas
 
-5. **Reportes** (solo para administradores)
-   - Mostrar un gráfico de movimientos financieros.
-   - Mostrar el saldo actual.
-   - Botón para descargar el reporte en formato CSV.
+### Runtime & Tools
+- **Bun** - Runtime y package manager
+- **Supabase** - Base de datos PostgreSQL
+- **GitHub OAuth** - Autenticación social
 
-### Requisitos Técnicos
+## 📁 Estructura del Proyecto
 
-- **Tecnologías y Herramientas:**
-  - **Frontend:**
-    - Next.js utilizando `pages` router.
-    - TypeScript.
-    - Tailwind CSS.
-    - Shadcn para componentes de la interfaz de usuario.
-    - NextJS API routes para comunicación con el backend.
-  - **Backend:**
-    - NextJS API routes para implementar endpoints REST.
-    - Base de datos de Postgres en Supabase.
-     - **Documentación de API:** Implementar una ruta `/api/docs` que exponga la documentación del API usando OpenAPI/Swagger. Cada endpoint creado debe estar completamente documentado con sus parámetros, respuestas y ejemplos.
-   - **Protección de Datos:**
-     - Implementar control de acceso basado en roles (RBAC) para asegurar que solo los usuarios autorizados puedan acceder a ciertas funcionalidades y datos.
-     - Proteger el backend para que rechace conexiones no autenticadas.
-   - **Autenticación:**
-     - Utilizar [Better Auth](https://www.better-auth.com/) con [GitHub](https://github.com/settings/developers) como proveedor de autenticación y [Prisma](https://prisma.io) como adaptador para la autenticación por sesiones de base de datos.
-     - **IMPORTANTE:** Todos los nuevos usuarios que se registren deben ser automáticamente asignados con el rol "ADMIN" para facilitar las pruebas de la aplicación.
-   - **Pruebas unitarias**  - El candidato debe agregar al menos 3 pruebas unitarias donde considere necesario.
-  - **Despliegue:**
-    - Desplegar el proyecto en Vercel.
+```
+├── components/           # Componentes React reutilizables
+│   ├── layout/          # Layout (Header, Sidebar, AuthGuard)
+│   └── ui/              # UI base (Button, Input, Card, Badge)
+├── hooks/               # Custom React hooks
+│   └── useAuth.ts       # Hook para autenticación
+├── lib/                 # Utilidades y configuraciones
+│   ├── auth/            # Configuración de Better Auth
+│   ├── auth-utils.ts    # Utilidades de autenticación y roles
+│   ├── balance-calculator.ts # Cálculos financieros
+│   ├── validation.ts    # Esquemas de validación Zod
+│   └── prisma.ts        # Cliente de Prisma
+├── pages/               # Páginas y endpoints API
+│   ├── admin/           # Páginas de administración
+│   │   ├── docs.tsx     # Documentación API
+│   │   ├── reports.tsx  # Reportes y gráficos
+│   │   └── users.tsx    # Gestión de usuarios
+│   ├── api/             # Endpoints API
+│   │   ├── auth/        # Autenticación Better Auth
+│   │   ├── movements/   # Gestión de movimientos
+│   │   ├── reports/     # Reportes y exportación
+│   │   └── users/       # Gestión de usuarios
+│   ├── movements/       # Páginas de movimientos
+│   │   ├── index.tsx    # Lista de movimientos
+│   │   └── new.tsx      # Crear movimiento
+│   ├── dashboard.tsx    # Dashboard principal
+│   └── index.tsx        # Página de inicio
+├── prisma/              # Esquema de base de datos
+│   └── schema.prisma    # Modelos de datos
+├── public/              # Archivos estáticos
+└── types/               # Definiciones TypeScript
+```
 
-### Entregables
+## 🚀 Instalación y Despliegue Local
 
-1. **Código Fuente:**
-   - Repositorio en GitHub con el código fuente del proyecto.
-   - Incluir un archivo README con instrucciones claras sobre cómo ejecutar el proyecto localmente y cómo desplegarlo en Vercel.
+### Prerrequisitos
+- **Bun** (runtime requerido)
+- **Cuenta de GitHub** (para OAuth)
+- **Supabase** (base de datos)
 
-2. **Despliegue:**
-   - Proyecto desplegado en Vercel con la URL proporcionada.
+### 1. Clonar y Configurar
 
-### Criterios de Evaluación
+```bash
+# Clonar el repositorio
+git clone <repository-url>
+cd prevalentware
 
-- **Funcionalidad:**
-  - Cumplimiento de todos los requisitos funcionales.
-  - Correcta implementación del CRUD para ingresos, egresos y usuarios.
-  - Generación y descarga de reportes en formato CSV.
+# Instalar dependencias con Bun
+bun install
+```
 
-- **Calidad del Código:**
-  - Calidad y claridad del código.
-  - Uso adecuado de las mejores prácticas de desarrollo.
-  - Estructura del proyecto.
-  - Documentación completa de la API con OpenAPI/Swagger.
+### 2. Configurar Variables de Entorno
 
-- **Diseño y UX:**
-  - Usabilidad de la interfaz.
-  - Implementación de un diseño atractivo.
+El archivo `.env.local` ya debe contener:
 
-- **Pruebas y Documentación:**
-  - Cobertura de pruebas unitarias.
-  - Calidad de los comentarios dentro del proyecto.
+```env
+# 🌐 Configuración general
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NODE_ENV=development
+PORT=3000
 
-- **Seguridad:**
-  - Implementación efectiva de control de acceso basado en roles (RBAC).
-  - Protección adecuada de los datos sensibles.
+# 🧱 App info
+APP_NAME="Prevalentware"
+LOG_LEVEL=debug
 
-- **Notas**:
-  - El aplicativo no debe contener diseño responsivo.
-  - El candidato puede utilizar el código cargado en este repositorio. Sin embargo, esta no es una condición necesaria y el candidato puede iniciar el proyecto de 0 si lo desea.
-  - El candidato puede cambiar las versiones de las librerías si lo considera necesario.
-  - El candidato debe compartir el acceso al repositorio de GitHub y el .env a los correos mlopera@prevalentware.com, jdsanchez@prevalentware.com y dfsorza@prevalentware.com
+# 🗄️ Base de datos Supabase
+DATABASE_URL="postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres"
+
+# 🔐 Better Auth
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET="tu-clave-secreta"
+
+# 🔑 GitHub OAuth
+GITHUB_CLIENT_ID="tu-client-id"
+GITHUB_CLIENT_SECRET="tu-client-secret"
+```
+
+### 3. Configurar Base de Datos
+
+```bash
+# Generar cliente Prisma
+bunx prisma generate
+
+# Ejecutar migraciones
+bunx prisma db push
+
+# (Opcional) Abrir Prisma Studio para ver datos
+bunx prisma studio
+```
+
+### 4. Ejecutar la Aplicación
+
+```bash
+# Modo desarrollo
+bun run dev
+
+# La aplicación estará en http://localhost:3000
+```
+
+## Endpoints de la APP
+
+- `/dashboard` - Página principal
+- `/movements` - Movimientos
+- `/movements/new` - Agregar movimientos (Sólo para Administrador)
+- `/admin/users` - Usuarios (Sólo para Administrador)
+- `/admin/reports` - Reportes gráficos (Sólo para Administrador)
+
+## 📊 Endpoints de la API
+
+### 💰 Movimientos
+- `GET /api/movements` - Listar movimientos del usuario (con paginación y filtros)
+- `POST /api/movements` - Crear nuevo movimiento
+- `GET /api/movements/admin` - Listar todos los movimientos (solo admin)
+
+### 👥 Usuarios
+- `GET /api/users` - Listar usuarios (solo admin)
+- `GET /api/users/[id]` - Obtener usuario específico (solo admin)
+- `PUT /api/users/[id]` - Actualizar usuario (solo admin)
+
+### 📈 Reportes
+- `GET /api/reports/summary` - Datos para gráficos (solo admin)
+- `GET /api/reports/export` - Exportar a CSV (solo admin)
+
+### 📚 Documentación
+- `GET /api/docs` - Documentación Swagger JSON
+- Página: `/admin/docs` - UI de documentación
+
+## 🎯 Flujos de Usuario
+
+### Para Usuarios Regulares
+1. **Iniciar sesión** con GitHub OAuth
+2. **Ver dashboard** en `/dashboard` con resumen financiero
+3. **Gestionar movimientos** en `/movements`
+   - Ver listado con paginación
+   - Crear nuevos ingresos/egresos
+   - Filtrar por tipo (INCOME/EXPENSE)
+
+### Para Administradores
+1. **Acceder a panel admin** en rutas `/admin/*`
+2. **Gestionar usuarios** en `/admin/users`
+   - Ver todos los usuarios
+   - Editar roles e información
+   - Prevención de auto-edición de rol
+3. **Generar reportes** en `/admin/reports`
+   - Gráficos de ingresos/egresos
+   - Filtros por usuarios y períodos
+   - Exportación a CSV
+4. **Ver documentación** en `/admin/docs`
+
+## 🔧 Comandos Útiles
+
+```bash
+# Desarrollo
+bun run dev           # Servidor desarrollo
+bun run build         # Build producción
+bun run start         # Servidor producción
+
+# Base de datos
+bunx prisma generate  # Generar cliente Prisma
+bunx prisma db push   # Sincronizar esquema
+bunx prisma studio    # Cliente visual BD
+
+# Calidad de código
+bun run lint          # ESLint
+
+# Documentación
+# Acceder a /admin/docs en el navegador
+```
+
+## 🗃️ Modelos de Base de Datos
+
+### User
+```prisma
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean
+  role          String    @default("USER")
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+  movements     Movement[]
+}
+```
+
+### Movement
+```prisma
+model Movement {
+  id          String   @id @default(cuid())
+  amount      Float
+  description String
+  type        String   // "INCOME" o "EXPENSE"
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+```
+
+## 🔐 Sistema de Autenticación y Roles
+
+### Better Auth + GitHub OAuth
+- Autenticación segura con sesiones
+- Integración con GitHub OAuth
+- Manejo automático de tokens
+
+### Sistema de Roles
+- **USER**: 
+  - Gestionar sus propios movimientos
+  - Ver dashboard personal
+- **ADMIN**:
+  - Acceso completo al sistema
+  - Gestión de todos los usuarios
+  - Reportes globales
+  - Exportación de datos
+
+### Seguridad Implementada
+- Validación de sesión en todos los endpoints
+- Prevención de auto-edición de rol
+- Protección de rutas por roles
+- Validación robusta con Zod
+
+## 📈 Sistema de Reportes
+
+### Gráficos y Análisis
+- **Evolución temporal** de ingresos vs egresos
+- **Balance acumulado** histórico
+- **Filtros avanzados**:
+  - Períodos (día, semana, mes, año)
+  - Usuarios específicos o todos
+  - Fechas personalizadas
+
+### Exportación CSV
+- Formato compatible con Excel
+- Montos formateados para español
+- Encoding UTF-8
+- Totales automáticos incluidos
+
+## 🚀 Despliegue en Producción
+
+### Preparación para Producción
+```bash
+# Build de producción
+bun run build
+
+# Verificar build
+bun run start
+```
+
+### Variables de Entorno para Producción
+```env
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://tudominio.com
+DATABASE_URL="postgresql://..."
+BETTER_AUTH_SECRET="clave-secreta-fuerte-produccion"
+GITHUB_CLIENT_ID="prod-client-id"
+GITHUB_CLIENT_SECRET="prod-client-secret"
+```
+
+### Plataformas Recomendadas
+- **Vercel** (óptimo para Next.js)
+- **Netlify**
+- **Railway**
+- **Digital Ocean App Platform**
+
+## 🤝 Soporte y Contribución
+
+Para reportar issues o contribuir:
+1. Verificar la documentación en `/admin/docs`
+2. Revisar los logs en desarrollo con `LOG_LEVEL=debug`
+3. Utilizar Prisma Studio para diagnóstico de datos
+
+## 📝 Notas Técnicas
+
+- **Next.js Page Router**: La aplicación utiliza el Page Router tradicional
+- **Bun Runtime**: Optimizado para el ecosistema Bun
+- **Supabase**: Base de datos PostgreSQL con connection pooling
+- **Better Auth**: Solución moderna de autenticación
+
+---
+
+**¿Problemas?** Revisa la documentación en `/admin/docs` o verifica los logs con `LOG_LEVEL=debug`.
