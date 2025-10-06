@@ -159,7 +159,7 @@ function generateCSV(movements: any[]): string {
     'Fecha de Creación'
   ];
 
-  const csvRows = [headers.join(',')];
+  const csvRows = [headers.join(';')];
 
   movements.forEach(movement => {
     const row = [
@@ -172,7 +172,7 @@ function generateCSV(movements: any[]): string {
       formatDateForCSV(movement.createdAt)
     ];
     
-    csvRows.push(row.join(','));
+    csvRows.push(row.join(';'));
   });
 
   // Agregar totales al final
@@ -207,7 +207,7 @@ function formatDateForCSV(date: Date): string {
 // Función para formatear montos para CSV
 function formatAmountForCSV(amount: any): string {
   const num = parseFloat(amount.toString());
-  return num.toFixed(2).replace('.', ',');
+  return num.toFixed(2).replace(',', '.');
 }
 
 // Función para calcular totales (reutilizada)
