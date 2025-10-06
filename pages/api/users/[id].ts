@@ -4,6 +4,176 @@ import { requireAdmin, getAuthenticatedUser } from '../../../lib/auth-utils';
 
 const prisma = new PrismaClient();
 
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Obtener información detallada de un usuario (Solo administradores)
+ *     description: Retorna información completa de un usuario específico incluyendo sus movimientos recientes
+ *     tags:
+ *       - Usuarios
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del usuario
+ *     responses:
+ *       200:
+ *         description: Información del usuario obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                     emailVerified:
+ *                       type: boolean
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                     movements:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Movement'
+ *                     _count:
+ *                       type: object
+ *                       properties:
+ *                         movements:
+ *                           type: integer
+ *                         sessions:
+ *                           type: integer
+ *                         accounts:
+ *                           type: integer
+ *       401:
+ *         description: No autorizado - Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Prohibido - Se requieren permisos de administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Usuario no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ * 
+ *   put:
+ *     summary: Actualizar información de un usuario (Solo administradores)
+ *     description: Actualiza la información de un usuario específico. Los administradores no pueden cambiar su propio rol.
+ *     tags:
+ *       - Usuarios
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del usuario a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *                 example: "María García"
+ *                 description: Nuevo nombre del usuario
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "maria@ejemplo.com"
+ *                 description: Nuevo email del usuario
+ *               role:
+ *                 type: string
+ *                 enum: [USER, ADMIN]
+ *                 example: "ADMIN"
+ *                 description: Nuevo rol del usuario (no aplicable para auto-edición)
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Usuario actualizado correctamente"
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Datos inválidos o intento de auto-edición de rol
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: No autorizado - Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Prohibido - Se requieren permisos de administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Usuario no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Conflicto - Email ya en uso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 // Esquema de validación para editar usuario
 const updateUserSchema = {
   name: (value: any) => {

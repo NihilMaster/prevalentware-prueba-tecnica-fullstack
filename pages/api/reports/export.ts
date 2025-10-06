@@ -4,6 +4,75 @@ import { requireAdmin } from '../../../lib/auth-utils';
 
 const prisma = new PrismaClient();
 
+/**
+ * @swagger
+ * /api/reports/export:
+ *   get:
+ *     summary: Exportar movimientos a CSV (Solo administradores)
+ *     description: Genera y descarga un archivo CSV con los movimientos filtrados
+ *     tags:
+ *       - Reportes
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userIds
+ *         schema:
+ *           type: string
+ *           default: all
+ *         description: IDs de usuarios separados por coma o 'all' para todos los usuarios
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de inicio para filtrar movimientos (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de fin para filtrar movimientos (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [csv, json]
+ *           default: csv
+ *         description: Formato de exportación
+ *     responses:
+ *       200:
+ *         description: Archivo CSV generado exitosamente
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *         headers:
+ *           Content-Disposition:
+ *             schema:
+ *               type: string
+ *             description: Header para descarga de archivo
+ *       401:
+ *         description: No autorizado - Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Prohibido - Se requieren permisos de administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

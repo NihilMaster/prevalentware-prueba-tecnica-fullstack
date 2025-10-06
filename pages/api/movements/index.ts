@@ -5,6 +5,132 @@ import { getAuthenticatedUser } from '../../../lib/auth-utils';
 
 const prisma = new PrismaClient();
 
+/**
+ * @swagger
+ * /api/movements:
+ *   get:
+ *     summary: Obtener lista de movimientos del usuario autenticado
+ *     description: Retorna los movimientos financieros del usuario con paginación y filtros opcionales
+ *     tags:
+ *       - Movimientos
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Número de página para paginación
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad de resultados por página
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [INCOME, EXPENSE]
+ *         description: Filtrar por tipo de movimiento
+ *     responses:
+ *       200:
+ *         description: Lista de movimientos obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 movements:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Movement'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         description: No autorizado - Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ * 
+ *   post:
+ *     summary: Crear un nuevo movimiento
+ *     description: Crea un nuevo movimiento financiero para el usuario autenticado
+ *     tags:
+ *       - Movimientos
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *               - description
+ *               - type
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 minimum: 0.01
+ *                 maximum: 1000000
+ *                 example: 150.75
+ *                 description: Monto del movimiento (debe ser mayor a 0)
+ *               description:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 255
+ *                 example: "Compra de supermercado"
+ *                 description: Descripción del movimiento
+ *               type:
+ *                 type: string
+ *                 enum: [INCOME, EXPENSE]
+ *                 example: "EXPENSE"
+ *                 description: Tipo de movimiento
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2024-01-15T10:30:00.000Z"
+ *                 description: Fecha del movimiento (opcional, por defecto fecha actual)
+ *     responses:
+ *       201:
+ *         description: Movimiento creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Movement'
+ *       400:
+ *         description: Datos de entrada inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: No autorizado - Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

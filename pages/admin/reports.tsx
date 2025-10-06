@@ -523,6 +523,20 @@ export default function AdminReports() {
           ← Movimientos
         </button>
       </div>
+
+      <button 
+        onClick={() => router.push('/docs')}
+        style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#10b981',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        📚 Ver Documentación API
+      </button>
     </div>
   );
 }

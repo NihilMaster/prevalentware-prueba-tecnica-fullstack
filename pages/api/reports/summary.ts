@@ -4,6 +4,107 @@ import { requireAdmin } from '../../../lib/auth-utils';
 
 const prisma = new PrismaClient();
 
+/**
+ * @swagger
+ * /api/reports/summary:
+ *   get:
+ *     summary: Obtener datos resumen para gráficos (Solo administradores)
+ *     description: Retorna datos agregados de movimientos para generar gráficos y reportes
+ *     tags:
+ *       - Reportes
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, year]
+ *           default: month
+ *         description: Período de tiempo para el reporte
+ *       - in: query
+ *         name: userIds
+ *         schema:
+ *           type: string
+ *           default: all
+ *         description: IDs de usuarios separados por coma o 'all' para todos los usuarios
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de inicio personalizada (formato YYYY-MM-DD)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de fin personalizada (formato YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Datos del reporte obtenidos exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 labels:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["01 Ene", "02 Ene", "03 Ene"]
+ *                   description: Etiquetas para el eje X del gráfico
+ *                 datasets:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       label:
+ *                         type: string
+ *                         example: "Ingresos"
+ *                       data:
+ *                         type: array
+ *                         items:
+ *                           type: number
+ *                         example: [100, 150, 200]
+ *                       borderColor:
+ *                         type: string
+ *                         example: "#10b981"
+ *                       backgroundColor:
+ *                         type: string
+ *                         example: "rgba(16, 185, 129, 0.1)"
+ *                 totalBalance:
+ *                   type: number
+ *                   example: 1500.75
+ *                   description: Balance total (ingresos - egresos)
+ *                 totalIncome:
+ *                   type: number
+ *                   example: 3000.50
+ *                   description: Total de ingresos
+ *                 totalExpense:
+ *                   type: number
+ *                   example: 1499.75
+ *                   description: Total de egresos
+ *       401:
+ *         description: No autorizado - Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Prohibido - Se requieren permisos de administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 interface SummaryData {
   labels: string[];
   datasets: {

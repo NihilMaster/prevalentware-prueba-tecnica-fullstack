@@ -183,3 +183,16 @@ export async function canEditUser(editor: AuthenticatedUser, targetUserId: strin
     error: 'No tienes permisos para editar este usuario' 
   };
 }
+
+export async function checkIsAdmin(req: any): Promise<{ isAdmin: boolean; user?: AuthenticatedUser }> {
+  try {
+    const user = await getAuthenticatedUser(req);
+    return {
+      isAdmin: user?.role === 'ADMIN',
+      user: user || undefined
+    };
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return { isAdmin: false };
+  }
+}
