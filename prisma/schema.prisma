@@ -19,13 +19,16 @@ model User {
   email         String
   emailVerified Boolean
   image         String?
+  role          RoleType   @default(USER)
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  movements     Movement[]
 
   @@unique([email])
   @@map("user")
+
 }
 
 model Session {
@@ -71,4 +74,28 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Movement {
+  id          String    @id @default(cuid())
+  amount      Decimal
+  description String
+  type        MovementType // INCOME o EXPENSE
+  date        DateTime  @default(now())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("movement")
+}
+
+enum MovementType {
+  INCOME
+  EXPENSE
+}
+
+enum RoleType {
+  USER
+  ADMIN
 }
