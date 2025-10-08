@@ -44,13 +44,29 @@ export const updateMovementSchema = z.object({
 export type CreateMovementInput = z.infer<typeof createMovementSchema>;
 export type UpdateMovementInput = z.infer<typeof updateMovementSchema>;
 
-// Función de validación mejorada
-export function validateMovementData(data: unknown, isUpdate: boolean = false) {
+// Función para validar los datos de entrada
+export const validateMovementData = (
+  data: unknown,
+  isUpdate: boolean = false
+): {
+  success: boolean;
+  data: CreateMovementInput | UpdateMovementInput | null;
+  error: z.ZodIssue[] | { field: string; message: string }[] | null;
+} => {
   const schema = isUpdate ? updateMovementSchema : createMovementSchema;
+
+  // Verificar que data es un objeto
+  if (typeof data !== 'object' || data === null) {
+    return {
+      success: false,
+      data: null,
+      error: [{ field: 'root', message: 'Datos de entrada inválidos' }],
+    };
+  }
 
   try {
     // Procesar datos antes de validar
-    const processedData: Record<string, any> = (typeof data === 'object' && data !== null) ? { ...data } : {};
+    const processedData = { ...(data as Record<string, unknown>) };
 
     // Convertir amount a número si es string
     if (processedData.amount !== undefined && processedData.amount !== null) {
@@ -86,4 +102,4 @@ export function validateMovementData(data: unknown, isUpdate: boolean = false) {
       error: [{ field: 'unknown', message: 'Error de validación desconocido' }],
     };
   }
-}
+};

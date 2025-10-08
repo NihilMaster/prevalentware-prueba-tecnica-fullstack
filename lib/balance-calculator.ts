@@ -16,7 +16,9 @@ export interface BalanceResult {
 export async function calculateCurrentBalance(
   userId?: string | string[]
 ): Promise<BalanceResult> {
-  const where: any = {};
+  const where: {
+    userId?: { in: string[] } | string;
+  } = {};
 
   if (userId) {
     if (Array.isArray(userId)) {
@@ -61,7 +63,11 @@ export async function calculateHistoricalBalance(
   userId?: string | string[],
   days: number = 30
 ): Promise<{ date: string; balance: number }[]> {
-  const where: any = {};
+  const where: {
+    userId?: { in: string[] } | string;
+    date?: { gte: Date; lte: Date };
+  } = {};
+  
   const endDate = new Date();
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
@@ -93,14 +99,13 @@ export async function calculateHistoricalBalance(
   // Inicializar todos los días con balance 0
   const current = new Date(startDate);
   while (current <= endDate) {
-    const [dateKey] = current.toISOString().split('T');
-    dailyBalances[dateKey] = 0;
+    dailyBalances[current.toISOString().split('T')[0]] = 0;
     current.setDate(current.getDate() + 1);
   }
 
   // Procesar movimientos y calcular balance acumulado
   movements.forEach((movement) => {
-    const [dateKey] = movement.date.toISOString().split('T');
+    const dateKey = movement.date.toISOString().split('T')[0];
     const amount = parseFloat(movement.amount.toString());
 
     if (movement.type === 'INCOME') {
@@ -110,11 +115,10 @@ export async function calculateHistoricalBalance(
     }
 
     // Actualizar balance para este día y todos los días siguientes
-    const current = new Date(movement.date);
-    while (current <= endDate) {
-      const [futureDateKey] = current.toISOString().split('T');
-      dailyBalances[futureDateKey] = runningBalance;
-      current.setDate(current.getDate() + 1);
+    const currentDate = new Date(movement.date);
+    while (currentDate <= endDate) {
+      dailyBalances[currentDate.toISOString().split('T')[0]] = runningBalance;
+      currentDate.setDate(currentDate.getDate() + 1);
     }
   });
 
