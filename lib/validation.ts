@@ -45,12 +45,12 @@ export type CreateMovementInput = z.infer<typeof createMovementSchema>;
 export type UpdateMovementInput = z.infer<typeof updateMovementSchema>;
 
 // Función de validación mejorada
-export function validateMovementData(data: any, isUpdate: boolean = false) {
+export function validateMovementData(data: unknown, isUpdate: boolean = false) {
   const schema = isUpdate ? updateMovementSchema : createMovementSchema;
 
   try {
     // Procesar datos antes de validar
-    const processedData = { ...data };
+    const processedData: Record<string, any> = (typeof data === 'object' && data !== null) ? { ...data } : {};
 
     // Convertir amount a número si es string
     if (processedData.amount !== undefined && processedData.amount !== null) {

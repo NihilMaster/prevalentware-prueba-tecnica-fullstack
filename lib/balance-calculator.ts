@@ -93,14 +93,14 @@ export async function calculateHistoricalBalance(
   // Inicializar todos los días con balance 0
   const current = new Date(startDate);
   while (current <= endDate) {
-    const dateKey = current.toISOString().split('T')[0];
+    const [dateKey] = current.toISOString().split('T');
     dailyBalances[dateKey] = 0;
     current.setDate(current.getDate() + 1);
   }
 
   // Procesar movimientos y calcular balance acumulado
   movements.forEach((movement) => {
-    const dateKey = movement.date.toISOString().split('T')[0];
+    const [dateKey] = movement.date.toISOString().split('T');
     const amount = parseFloat(movement.amount.toString());
 
     if (movement.type === 'INCOME') {
@@ -112,7 +112,7 @@ export async function calculateHistoricalBalance(
     // Actualizar balance para este día y todos los días siguientes
     const current = new Date(movement.date);
     while (current <= endDate) {
-      const futureDateKey = current.toISOString().split('T')[0];
+      const [futureDateKey] = current.toISOString().split('T');
       dailyBalances[futureDateKey] = runningBalance;
       current.setDate(current.getDate() + 1);
     }

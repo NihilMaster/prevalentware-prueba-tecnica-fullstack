@@ -1,6 +1,6 @@
-export function convertHeaders(
+export const convertHeaders = (
   incomingHeaders: import('next').NextApiRequest['headers']
-): Headers {
+): Headers => {
   const headers = new Headers();
 
   Object.entries(incomingHeaders).forEach(([key, value]) => {
@@ -12,4 +12,4 @@ export function convertHeaders(
   });
 
   return headers;
-}
+};
