@@ -83,12 +83,7 @@ export default async function handler(
 
   if (req.method === 'GET') {
     try {
-      const { 
-        userIds = 'all',
-        startDate,
-        endDate,
-        format = 'csv'
-      } = req.query;
+      const { userIds = 'all', startDate, endDate, format = 'csv' } = req.query;
 
       // Construir where clause
       const where: any = {};
@@ -114,24 +109,27 @@ export default async function handler(
           user: {
             select: {
               name: true,
-              email: true
-            }
-          }
+              email: true,
+            },
+          },
         },
         orderBy: {
-          date: 'desc'
-        }
+          date: 'desc',
+        },
       });
 
       if (format === 'csv') {
         // Generar CSV
         const csv = generateCSV(movements);
-        
+
         // Configurar headers para descarga
         const filename = `reporte-movimientos-${new Date().toISOString().split('T')[0]}.csv`;
-        
+
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="${filename}"`
+        );
         res.status(200).send(csv);
       } else {
         // Devolver JSON como alternativa
@@ -156,12 +154,12 @@ function generateCSV(movements: any[]): string {
     'Tipo',
     'Monto',
     'Descripción',
-    'Fecha de Creación'
+    'Fecha de Creación',
   ];
 
   const csvRows = [headers.join(';')];
 
-  movements.forEach(movement => {
+  movements.forEach((movement) => {
     const row = [
       formatDateForCSV(movement.date),
       `"${escapeCSV(movement.user.name)}"`,
@@ -169,9 +167,9 @@ function generateCSV(movements: any[]): string {
       movement.type === 'INCOME' ? 'Ingreso' : 'Egreso',
       formatAmountForCSV(movement.amount),
       `"${escapeCSV(movement.description)}"`,
-      formatDateForCSV(movement.createdAt)
+      formatDateForCSV(movement.createdAt),
     ];
-    
+
     csvRows.push(row.join(';'));
   });
 
@@ -200,7 +198,7 @@ function formatDateForCSV(date: Date): string {
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 }
 
@@ -215,7 +213,7 @@ function calculateTotals(movements: any[]) {
   let totalIncome = 0;
   let totalExpense = 0;
 
-  movements.forEach(movement => {
+  movements.forEach((movement) => {
     const amount = parseFloat(movement.amount.toString());
     if (movement.type === 'INCOME') {
       totalIncome += amount;
@@ -227,6 +225,6 @@ function calculateTotals(movements: any[]) {
   return {
     totalBalance: totalIncome - totalExpense,
     totalIncome,
-    totalExpense
+    totalExpense,
   };
 }

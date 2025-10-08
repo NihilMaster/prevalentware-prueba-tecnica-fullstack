@@ -36,9 +36,9 @@ export default async function handler(
               id: true,
               name: true,
               email: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       const total = await prisma.movement.count({ where });

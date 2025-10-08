@@ -19,12 +19,14 @@ Un sistema completo para la gestión de movimientos financieros con autenticaci�
 ## 🛠️ Stack Tecnológico
 
 ### Frontend
+
 - **Next.js 14** con Page Router
 - **TypeScript** - Tipado estático
 - **Tailwind CSS** - Estilización
 - **React Hook Form** - Manejo de formularios
 
 ### Backend
+
 - **Next.js API Routes** - Endpoints API
 - **Prisma ORM** - Base de datos y migraciones
 - **PostgreSQL** - Base de datos (via Supabase)
@@ -32,6 +34,7 @@ Un sistema completo para la gestión de movimientos financieros con autenticaci�
 - **Zod** - Validación de esquemas
 
 ### Runtime & Tools
+
 - **Bun** - Runtime y package manager
 - **Supabase** - Base de datos PostgreSQL
 - **GitHub OAuth** - Autenticación social
@@ -74,6 +77,7 @@ Un sistema completo para la gestión de movimientos financieros con autenticaci�
 ## 🚀 Instalación y Despliegue Local
 
 ### Prerrequisitos
+
 - **Bun** (runtime requerido)
 - **Cuenta de GitHub** (para OAuth)
 - **Supabase** (base de datos)
@@ -149,26 +153,31 @@ bun run dev
 ## 📊 Endpoints de la API
 
 ### 💰 Movimientos
+
 - `GET /api/movements` - Listar movimientos del usuario (con paginación y filtros)
 - `POST /api/movements` - Crear nuevo movimiento
 - `GET /api/movements/admin` - Listar todos los movimientos (solo admin)
 
 ### 👥 Usuarios
+
 - `GET /api/users` - Listar usuarios (solo admin)
 - `GET /api/users/[id]` - Obtener usuario específico (solo admin)
 - `PUT /api/users/[id]` - Actualizar usuario (solo admin)
 
 ### 📈 Reportes
+
 - `GET /api/reports/summary` - Datos para gráficos (solo admin)
 - `GET /api/reports/export` - Exportar a CSV (solo admin)
 
 ### 📚 Documentación
+
 - `GET /api/docs` - Documentación Swagger JSON
 - Página: `/admin/docs` - UI de documentación
 
 ## 🎯 Flujos de Usuario
 
 ### Para Usuarios Regulares
+
 1. **Iniciar sesión** con GitHub OAuth
 2. **Ver dashboard** en `/dashboard` con resumen financiero
 3. **Gestionar movimientos** en `/movements`
@@ -177,6 +186,7 @@ bun run dev
    - Filtrar por tipo (INCOME/EXPENSE)
 
 ### Para Administradores
+
 1. **Acceder a panel admin** en rutas `/admin/*`
 2. **Gestionar usuarios** en `/admin/users`
    - Ver todos los usuarios
@@ -211,6 +221,7 @@ bun run lint          # ESLint
 ## 🗃️ Modelos de Base de Datos
 
 ### User
+
 ```prisma
 model User {
   id            String    @id
@@ -228,6 +239,7 @@ model User {
 ```
 
 ### Movement
+
 ```prisma
 model Movement {
   id          String   @id @default(cuid())
@@ -244,12 +256,14 @@ model Movement {
 ## 🔐 Sistema de Autenticación y Roles
 
 ### Better Auth + GitHub OAuth
+
 - Autenticación segura con sesiones
 - Integración con GitHub OAuth
 - Manejo automático de tokens
 
 ### Sistema de Roles
-- **USER**: 
+
+- **USER**:
   - Gestionar sus propios movimientos
   - Ver dashboard personal
 - **ADMIN**:
@@ -259,6 +273,7 @@ model Movement {
   - Exportación de datos
 
 ### Seguridad Implementada
+
 - Validación de sesión en todos los endpoints
 - Prevención de auto-edición de rol
 - Protección de rutas por roles
@@ -267,6 +282,7 @@ model Movement {
 ## 📈 Sistema de Reportes
 
 ### Gráficos y Análisis
+
 - **Evolución temporal** de ingresos vs egresos
 - **Balance acumulado** histórico
 - **Filtros avanzados**:
@@ -275,6 +291,7 @@ model Movement {
   - Fechas personalizadas
 
 ### Exportación CSV
+
 - Formato compatible con Excel
 - Montos formateados para español
 - Encoding UTF-8
@@ -283,6 +300,7 @@ model Movement {
 ## 🚀 Despliegue en Producción
 
 ### Preparación para Producción
+
 ```bash
 # Build de producción
 bun run build
@@ -292,6 +310,7 @@ bun run start
 ```
 
 ### Variables de Entorno para Producción
+
 ```env
 NODE_ENV=production
 NEXT_PUBLIC_APP_URL=https://tudominio.com
@@ -302,6 +321,7 @@ GITHUB_CLIENT_SECRET="prod-client-secret"
 ```
 
 ### Plataformas Recomendadas
+
 - **Vercel** (óptimo para Next.js)
 - **Netlify**
 - **Railway**
@@ -310,6 +330,7 @@ GITHUB_CLIENT_SECRET="prod-client-secret"
 ## 🤝 Soporte y Contribución
 
 Para reportar issues o contribuir:
+
 1. Verificar la documentación en `/admin/docs`
 2. Revisar los logs en desarrollo con `LOG_LEVEL=debug`
 3. Utilizar Prisma Studio para diagnóstico de datos

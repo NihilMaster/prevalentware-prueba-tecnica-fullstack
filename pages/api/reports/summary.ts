@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import { requireAdmin } from '../../../lib/auth-utils';
-import { calculateHistoricalBalance, calculateCurrentBalance } from '@/lib/balance-calculator';
+import {
+  calculateHistoricalBalance,
+  calculateCurrentBalance,
+} from '@/lib/balance-calculator';
 
 const prisma = new PrismaClient();
 
@@ -52,7 +55,10 @@ const prisma = new PrismaClient();
  *         description: Error interno del servidor
  */
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   // Solo GET permitido
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -68,28 +74,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Determinar rango de fechas
     let days = 30;
     switch (period) {
-      case 'day': days = 1; break;
-      case 'week': days = 7; break;
-      case 'month': days = 30; break;
-      case 'year': days = 365; break;
+      case 'day':
+        days = 1;
+        break;
+      case 'week':
+        days = 7;
+        break;
+      case 'month':
+        days = 30;
+        break;
+      case 'year':
+        days = 365;
+        break;
     }
 
-    const dateFrom = startDate ? new Date(startDate as string) : new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const dateFrom = startDate
+      ? new Date(startDate as string)
+      : new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const dateTo = endDate ? new Date(endDate as string) : new Date();
 
     // Construir filtro base
     const where: any = {
-      date: { gte: dateFrom, lte: dateTo }
+      date: { gte: dateFrom, lte: dateTo },
     };
 
     // Filtrar usuarios
     if (userIds !== 'all' && typeof userIds === 'string') {
-      const ids = userIds.split(',').map(id => id.trim());
+      const ids = userIds.split(',').map((id) => id.trim());
       where.userId = { in: ids };
     }
 
     // Calcular balances históricos y totales
-    const historicalData = await calculateHistoricalBalance(where.userId?.in ?? undefined, days);
+    const historicalData = await calculateHistoricalBalance(
+      where.userId?.in ?? undefined,
+      days
+    );
     const currentBalance = await calculateCurrentBalance();
 
     // Consultar movimientos para construir gráfico
@@ -100,13 +119,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Agrupar movimientos por día
     const dailyData: Record<string, { income: number; expense: number }> = {};
-    const allDates = historicalData.map(item => new Date(item.date).toISOString().split('T')[0]);
+    const allDates = historicalData.map(
+      (item) => new Date(item.date).toISOString().split('T')[0]
+    );
 
-    allDates.forEach(dateKey => {
+    allDates.forEach((dateKey) => {
       dailyData[dateKey] = { income: 0, expense: 0 };
     });
 
-    movements.forEach(movement => {
+    movements.forEach((movement) => {
       const dateKey = movement.date.toISOString().split('T')[0];
       const amount = parseFloat(movement.amount.toString());
       if (!dailyData[dateKey]) dailyData[dateKey] = { income: 0, expense: 0 };
@@ -118,13 +139,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // Ejes y datasets
-    const labels = allDates.map(date =>
-      new Date(date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+    const labels = allDates.map((date) =>
+      new Date(date).toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+      })
     );
 
-    const incomeData = allDates.map(date => dailyData[date]?.income || 0);
-    const expenseData = allDates.map(date => dailyData[date]?.expense || 0);
-    const balanceData = historicalData.map(item => item.balance);
+    const incomeData = allDates.map((date) => dailyData[date]?.income || 0);
+    const expenseData = allDates.map((date) => dailyData[date]?.expense || 0);
+    const balanceData = historicalData.map((item) => item.balance);
 
     const summaryData = {
       labels,

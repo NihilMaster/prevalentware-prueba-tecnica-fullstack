@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,9 +26,7 @@ export default function LoginPage() {
 
   return (
     <div>
-      <button onClick={handleGitHubLogin}>
-        Login con GitHub
-      </button>
+      <button onClick={handleGitHubLogin}>Login con GitHub</button>
     </div>
   );
 }

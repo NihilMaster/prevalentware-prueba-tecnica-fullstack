@@ -6,7 +6,8 @@ module.exports = {
     info: {
       title: 'Sistema de Gestión de Movimientos - API',
       version: '1.0.0',
-      description: 'API completa para gestión de movimientos financieros con autenticación y sistema de roles',
+      description:
+        'API completa para gestión de movimientos financieros con autenticación y sistema de roles',
       license: {
         name: 'MIT',
         url: 'https://opensource.org/licenses/MIT',

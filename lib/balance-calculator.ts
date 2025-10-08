@@ -13,7 +13,9 @@ export interface BalanceResult {
 /**
  * Calcula el saldo actual para un usuario o grupo de usuarios
  */
-export async function calculateCurrentBalance(userId?: string | string[]): Promise<BalanceResult> {
+export async function calculateCurrentBalance(
+  userId?: string | string[]
+): Promise<BalanceResult> {
   const where: any = {};
 
   if (userId) {
@@ -27,14 +29,14 @@ export async function calculateCurrentBalance(userId?: string | string[]): Promi
   const movements = await prisma.movement.findMany({
     where,
     orderBy: {
-      date: 'desc'
-    }
+      date: 'desc',
+    },
   });
 
   let totalIncome = 0;
   let totalExpense = 0;
 
-  movements.forEach(movement => {
+  movements.forEach((movement) => {
     const amount = parseFloat(movement.amount.toString());
     if (movement.type === 'INCOME') {
       totalIncome += amount;
@@ -48,7 +50,7 @@ export async function calculateCurrentBalance(userId?: string | string[]): Promi
     totalIncome,
     totalExpense,
     movementCount: movements.length,
-    lastMovementDate: movements.length > 0 ? movements[0].date : null
+    lastMovementDate: movements.length > 0 ? movements[0].date : null,
   };
 }
 
@@ -56,7 +58,7 @@ export async function calculateCurrentBalance(userId?: string | string[]): Promi
  * Calcula el saldo histórico día por día
  */
 export async function calculateHistoricalBalance(
-  userId?: string | string[], 
+  userId?: string | string[],
   days: number = 30
 ): Promise<{ date: string; balance: number }[]> {
   const where: any = {};
@@ -74,14 +76,14 @@ export async function calculateHistoricalBalance(
 
   where.date = {
     gte: startDate,
-    lte: endDate
+    lte: endDate,
   };
 
   const movements = await prisma.movement.findMany({
     where,
     orderBy: {
-      date: 'asc'
-    }
+      date: 'asc',
+    },
   });
 
   // Agrupar movimientos por día y calcular balance acumulado
@@ -97,16 +99,16 @@ export async function calculateHistoricalBalance(
   }
 
   // Procesar movimientos y calcular balance acumulado
-  movements.forEach(movement => {
+  movements.forEach((movement) => {
     const dateKey = movement.date.toISOString().split('T')[0];
     const amount = parseFloat(movement.amount.toString());
-    
+
     if (movement.type === 'INCOME') {
       runningBalance += amount;
     } else {
       runningBalance -= amount;
     }
-    
+
     // Actualizar balance para este día y todos los días siguientes
     const current = new Date(movement.date);
     while (current <= endDate) {
@@ -120,7 +122,7 @@ export async function calculateHistoricalBalance(
   return Object.entries(dailyBalances)
     .map(([date, balance]) => ({
       date,
-      balance
+      balance,
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 }

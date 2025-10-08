@@ -75,9 +75,9 @@ export default async function handler(
   // Verificar autenticación para todos los endpoints
   const user = await getAuthenticatedUser(req);
   if (!user) {
-    return res.status(401).json({ 
+    return res.status(401).json({
       error: 'No autorizado',
-      message: 'Debes iniciar sesión para acceder a los movimientos'
+      message: 'Debes iniciar sesión para acceder a los movimientos',
     });
   }
 
@@ -91,7 +91,7 @@ export default async function handler(
 
       // Construir where clause - MODIFICADO: ya no filtra por usuario
       const where: any = {};
-      
+
       // Solo los administradores pueden ver todos los movimientos
       if (user.role !== 'ADMIN') {
         where.userId = user.id; // Usuarios normales solo ven sus movimientos
@@ -109,15 +109,16 @@ export default async function handler(
         orderBy: {
           createdAt: 'desc',
         },
-        include: { // Incluir información del usuario
+        include: {
+          // Incluir información del usuario
           user: {
             select: {
               id: true,
               name: true,
               email: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       // Obtener total para paginación
@@ -143,11 +144,11 @@ export default async function handler(
     try {
       // Validar datos de entrada
       const validation = validateMovementData(req.body);
-      
+
       if (!validation.success) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: 'Datos inválidos',
-          details: validation.error
+          details: validation.error,
         });
       }
 
@@ -162,7 +163,7 @@ export default async function handler(
           type: type as MovementType,
           date: new Date(date!),
           userId: user.id, // Siempre asociado al usuario autenticado
-        }
+        },
       });
 
       res.status(201).json(movement);

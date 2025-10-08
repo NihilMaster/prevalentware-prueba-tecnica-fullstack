@@ -1,5 +1,5 @@
 import { auth } from '../lib/auth'; // Ajusta la ruta según tu estructura
-import { PrismaClient } from '@prisma/client'; 
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -15,7 +15,9 @@ export interface AuthenticatedUser {
 }
 
 // Obtener usuario desde la sesión de Better Auth
-export async function getAuthenticatedUser(req: any): Promise<AuthenticatedUser | null> {
+export async function getAuthenticatedUser(
+  req: any
+): Promise<AuthenticatedUser | null> {
   try {
     const session = await auth.api.getSession({
       headers: req.headers,
@@ -32,8 +34,8 @@ export async function getAuthenticatedUser(req: any): Promise<AuthenticatedUser 
         id: true,
         email: true,
         name: true,
-        role: true // Asumiendo que agregaste el campo role al modelo User
-      }
+        role: true, // Asumiendo que agregaste el campo role al modelo User
+      },
     });
 
     if (!user) {
@@ -44,7 +46,7 @@ export async function getAuthenticatedUser(req: any): Promise<AuthenticatedUser 
       id: user.id,
       email: user.email,
       name: user.name,
-      role: (user.role as UserRole) || 'USER' // Default to USER if no role
+      role: (user.role as UserRole) || 'USER', // Default to USER if no role
     };
   } catch (error) {
     console.error('Error getting authenticated user:', error);
@@ -55,21 +57,21 @@ export async function getAuthenticatedUser(req: any): Promise<AuthenticatedUser 
 // Middleware de autenticación
 export async function requireAuth(req: any, res: any, next?: () => void) {
   const user = await getAuthenticatedUser(req);
-  
+
   if (!user) {
-    return res.status(401).json({ 
+    return res.status(401).json({
       error: 'No autorizado',
-      message: 'Debes iniciar sesión para acceder a este recurso'
+      message: 'Debes iniciar sesión para acceder a este recurso',
     });
   }
-  
+
   // Si se pasa next, es middleware de Express
   if (next) {
     (req as any).user = user;
     next();
     return;
   }
-  
+
   return user;
 }
 
@@ -77,28 +79,28 @@ export async function requireAuth(req: any, res: any, next?: () => void) {
 export function requireRole(allowedRoles: UserRole[]) {
   return async (req: any, res: any, next?: () => void) => {
     const user = await getAuthenticatedUser(req);
-    
+
     if (!user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'No autorizado',
-        message: 'Debes iniciar sesión para acceder a este recurso'
+        message: 'Debes iniciar sesión para acceder a este recurso',
       });
     }
-    
+
     if (!allowedRoles.includes(user.role)) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Acceso denegado',
-        message: 'No tienes permisos suficientes para realizar esta acción'
+        message: 'No tienes permisos suficientes para realizar esta acción',
       });
     }
-    
+
     // Si se pasa next, es middleware de Express
     if (next) {
       (req as any).user = user;
       next();
       return;
     }
-    
+
     return user;
   };
 }
@@ -121,75 +123,88 @@ export async function validateAdminPermissions(req: any): Promise<{
 }> {
   try {
     const user = await getAuthenticatedUser(req);
-    
+
     if (!user) {
-      return { 
-        hasPermission: false, 
-        error: 'No autenticado' 
+      return {
+        hasPermission: false,
+        error: 'No autenticado',
       };
     }
-    
+
     if (user.role !== 'ADMIN') {
-      return { 
-        hasPermission: false, 
-        error: 'Se requieren permisos de administrador' 
+      return {
+        hasPermission: false,
+        error: 'Se requieren permisos de administrador',
       };
     }
-    
-    return { 
-      hasPermission: true, 
-      user 
+
+    return {
+      hasPermission: true,
+      user,
     };
   } catch (error) {
     console.error('Error validating admin permissions:', error);
-    return { 
-      hasPermission: false, 
-      error: 'Error validando permisos' 
+    return {
+      hasPermission: false,
+      error: 'Error validando permisos',
     };
   }
 }
 
 // Middleware para prevenir auto-edición de rol
-export function preventSelfRoleChange(targetUserId: string, currentUser: AuthenticatedUser, newRole?: string) {
-  if (targetUserId === currentUser.id && newRole && newRole !== currentUser.role) {
+export function preventSelfRoleChange(
+  targetUserId: string,
+  currentUser: AuthenticatedUser,
+  newRole?: string
+) {
+  if (
+    targetUserId === currentUser.id &&
+    newRole &&
+    newRole !== currentUser.role
+  ) {
     return {
       allowed: false,
-      error: 'No puedes cambiar tu propio rol'
+      error: 'No puedes cambiar tu propio rol',
     };
   }
   return { allowed: true };
 }
 
 // Función para verificar si un usuario puede ser editado
-export async function canEditUser(editor: AuthenticatedUser, targetUserId: string) {
+export async function canEditUser(
+  editor: AuthenticatedUser,
+  targetUserId: string
+) {
   // Admins pueden editar cualquier usuario excepto su propio rol
   if (editor.role === 'ADMIN') {
-    return { 
+    return {
       allowed: true,
-      restrictions: targetUserId === editor.id ? ['role'] : [] 
+      restrictions: targetUserId === editor.id ? ['role'] : [],
     };
   }
-  
+
   // Usuarios normales solo pueden auto-editarse (sin cambiar rol)
   if (editor.role === 'USER' && editor.id === targetUserId) {
-    return { 
-      allowed: true, 
-      restrictions: ['role'] 
+    return {
+      allowed: true,
+      restrictions: ['role'],
     };
   }
-  
-  return { 
-    allowed: false, 
-    error: 'No tienes permisos para editar este usuario' 
+
+  return {
+    allowed: false,
+    error: 'No tienes permisos para editar este usuario',
   };
 }
 
-export async function checkIsAdmin(req: any): Promise<{ isAdmin: boolean; user?: AuthenticatedUser }> {
+export async function checkIsAdmin(
+  req: any
+): Promise<{ isAdmin: boolean; user?: AuthenticatedUser }> {
   try {
     const user = await getAuthenticatedUser(req);
     return {
       isAdmin: user?.role === 'ADMIN',
-      user: user || undefined
+      user: user || undefined,
     };
   } catch (error) {
     console.error('Error checking admin status:', error);

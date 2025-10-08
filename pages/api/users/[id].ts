@@ -85,7 +85,7 @@ const prisma = new PrismaClient();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- * 
+ *
  *   put:
  *     summary: Actualizar información de un usuario (Solo administradores)
  *     description: Actualiza la información de un usuario específico. Los administradores no pueden cambiar su propio rol.
@@ -177,13 +177,22 @@ const prisma = new PrismaClient();
 // Esquema de validación para editar usuario
 const updateUserSchema = {
   name: (value: any) => {
-    if (value && typeof value === 'string' && value.length > 0 && value.length <= 255) {
+    if (
+      value &&
+      typeof value === 'string' &&
+      value.length > 0 &&
+      value.length <= 255
+    ) {
       return value;
     }
     throw new Error('El nombre debe tener entre 1 y 255 caracteres');
   },
   email: (value: any) => {
-    if (value && typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    if (
+      value &&
+      typeof value === 'string' &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    ) {
       return value;
     }
     throw new Error('El email debe ser válido');
@@ -193,7 +202,7 @@ const updateUserSchema = {
       return value;
     }
     throw new Error('El rol debe ser USER o ADMIN');
-  }
+  },
 };
 
 function validateUserUpdate(data: any) {
@@ -207,7 +216,7 @@ function validateUserUpdate(data: any) {
       } catch (error) {
         errors.push({
           field,
-          message: (error as Error).message
+          message: (error as Error).message,
         });
       }
     }
@@ -216,7 +225,7 @@ function validateUserUpdate(data: any) {
   return {
     success: errors.length === 0,
     data: validatedData,
-    errors
+    errors,
   };
 }
 
@@ -227,9 +236,9 @@ export default async function handler(
   // Verificar que sea admin
   const currentUser = await getAuthenticatedUser(req);
   if (!currentUser || currentUser.role !== 'ADMIN') {
-    return res.status(403).json({ 
+    return res.status(403).json({
       error: 'Acceso denegado',
-      message: 'Se requieren permisos de administrador' 
+      message: 'Se requieren permisos de administrador',
     });
   }
 
@@ -258,19 +267,19 @@ export default async function handler(
               amount: true,
               description: true,
               type: true,
-              createdAt: true
+              createdAt: true,
             },
             orderBy: { createdAt: 'desc' },
-            take: 10
+            take: 10,
           },
           _count: {
             select: {
               movements: true,
               sessions: true,
               accounts: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       if (!user) {
@@ -288,27 +297,31 @@ export default async function handler(
   if (req.method === 'PUT') {
     try {
       // 🔒 Prevenir auto-edición de rol
-      if (id === currentUser.id && req.body.role && req.body.role !== currentUser.role) {
+      if (
+        id === currentUser.id &&
+        req.body.role &&
+        req.body.role !== currentUser.role
+      ) {
         return res.status(400).json({
           error: 'Auto-edición de rol bloqueada',
-          message: 'No puedes cambiar tu propio rol'
+          message: 'No puedes cambiar tu propio rol',
         });
       }
 
       // Validar datos de entrada
       const validation = validateUserUpdate(req.body);
-      
+
       if (!validation.success) {
         return res.status(400).json({
           error: 'Datos inválidos',
-          details: validation.errors
+          details: validation.errors,
         });
       }
 
       // Verificar que el usuario existe
       const existingUser = await prisma.user.findUnique({
         where: { id },
-        select: { id: true }
+        select: { id: true },
       });
 
       if (!existingUser) {
@@ -320,14 +333,14 @@ export default async function handler(
         const emailExists = await prisma.user.findFirst({
           where: {
             email: validation.data.email,
-            id: { not: id }
-          }
+            id: { not: id },
+          },
         });
 
         if (emailExists) {
           return res.status(400).json({
             error: 'Email en uso',
-            message: 'El email ya está siendo utilizado por otro usuario'
+            message: 'El email ya está siendo utilizado por otro usuario',
           });
         }
       }
@@ -344,12 +357,12 @@ export default async function handler(
           emailVerified: true,
           createdAt: true,
           updatedAt: true,
-        }
+        },
       });
 
       res.status(200).json({
         message: 'Usuario actualizado correctamente',
-        user: updatedUser
+        user: updatedUser,
       });
     } catch (error) {
       console.error('Error updating user:', error);

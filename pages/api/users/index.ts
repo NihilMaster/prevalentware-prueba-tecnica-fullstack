@@ -113,9 +113,9 @@ export default async function handler(
               movements: true,
               sessions: true,
               accounts: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       // Obtener total para paginación

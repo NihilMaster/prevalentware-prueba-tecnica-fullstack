@@ -6,10 +6,11 @@ const swaggerHandler = withSwagger({
     info: {
       title: 'Sistema de Gestión de Movimientos - API',
       version: '1.0.0',
-      description: 'API para gestión de movimientos financieros con autenticación y roles',
+      description:
+        'API para gestión de movimientos financieros con autenticación y roles',
       contact: {
         name: 'Soporte API',
-        email: 'soporte@ejemplo.com'
+        email: 'soporte@ejemplo.com',
       },
     },
     servers: [
@@ -60,7 +61,7 @@ const swaggerHandler = withSwagger({
             amount: {
               type: 'number',
               format: 'float',
-              example: 100.50,
+              example: 100.5,
             },
             description: {
               type: 'string',
